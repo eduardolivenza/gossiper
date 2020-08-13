@@ -49,15 +49,15 @@ public class PingerService {
         Request req = null;
         try {
             req = new Request.Builder()
-                    .url("http://" + connection.getHostname() + "/ping")
-                    .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getOwnName(), properties.getPort(), allConnections))))
-                    .build();
+                .url("http://" + connection.getHostname() + "/ping")
+                .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getOwnName(), properties.getPort(), allConnections))))
+                .build();
             Call call = okHttpClient.newCall(req);
             Response execute = call.execute();
             String responseBody;
             if (execute.body() != null) {
-                responseBody = execute.body().string();
-                GossiperResponse response = objectMapper.readValue(responseBody, GossiperResponse.class);
+            responseBody = execute.body().string();
+            GossiperResponse response = objectMapper.readValue(responseBody, GossiperResponse.class);
                 connectionTable.addConnections(response.getConnections());
                 return;
             }
