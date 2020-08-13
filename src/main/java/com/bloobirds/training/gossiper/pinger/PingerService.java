@@ -39,10 +39,8 @@ public class PingerService {
     }
 
     public void ping() {
-
         List<com.bloobirds.training.gossiper.model.Connection> connections = connectionTable.get(properties.getPingAmount());
         List<com.bloobirds.training.gossiper.model.Connection> allConnections = connectionTable.getAll();
-        log.info("Ping executed in node " + properties.getOwnName() + " Existing connections: " + allConnections.size());
         connections.forEach(connection -> executorService.execute(() -> this.ping(connection, allConnections)));
 
     }
@@ -50,25 +48,20 @@ public class PingerService {
     private void ping(com.bloobirds.training.gossiper.model.Connection connection, List<Connection> allConnections) {
         Request req = null;
         try {
-            log.info("Ping executed in node " + properties.getOwnName() + " to " + connection.getName() +" Calling: " + connection.getHostname() + "/ping");
-
-                req = new Request.Builder()
-                    .url("http://" + connection.getHostname() + "/ping")
-                    .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getOwnName(), properties.getPort(), allConnections))))
-                    .build();
-                Call call = okHttpClient.newCall(req);
-                Response execute = call.execute();
-                String responseBody;
-                if (execute.body() != null) {
-                responseBody = execute.body().string();
-                GossiperResponse response = objectMapper.readValue(responseBody, GossiperResponse.class);
-
-                    connectionTable.addConnections(response.getConnections());
-                    return;
-                }
-                connectionTable.remove(connection);
-
-
+            req = new Request.Builder()
+                .url("http://" + connection.getHostname() + "/ping")
+                .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getOwnName(), properties.getPort(), allConnections))))
+                .build();
+            Call call = okHttpClient.newCall(req);
+            Response execute = call.execute();
+            String responseBody;
+            if (execute.body() != null) {
+            responseBody = execute.body().string();
+            GossiperResponse response = objectMapper.readValue(responseBody, GossiperResponse.class);
+                connectionTable.addConnections(response.getConnections());
+                return;
+            }
+            connectionTable.remove(connection);
         } catch (IOException e) {
             connectionTable.remove(connection);
         }

@@ -26,8 +26,6 @@ public class PingController {
     @JsonPost("/ping")
     public @ResponseBody
     GossiperResponse answer(@RequestBody GossiperResponse newConnections, ServletRequest servletRequest) {
-        //log.info("RECEIVED ping from " + newConnections.getName());
-        connectionTable.addConnections(newConnections.getConnections());
         connectionTable.addConnections(Collections.singletonList(new Connection(newConnections.getName(), servletRequest.getServerName() + ":" + newConnections.getPort())));
         return new GossiperResponse(properties.getOwnName(), properties.getPort(),  connectionTable.getAll());
     }

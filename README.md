@@ -21,7 +21,7 @@ Start a second node at port `9002` called `robin`, using `batman` as seed
     --server.port=9002 \
     --gossiper.ownName=robin \
     --gossiper.port=9002 \
-    --gossiper.seedName=robin \
+    --gossiper.seedName=batman \
     --gossiper.seedHostname=127.0.0.1:9001
 ```
 
