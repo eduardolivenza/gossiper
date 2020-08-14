@@ -6,11 +6,9 @@ import lombok.Value;
 @Value
 public class Connection {
 
-    private final String name;
     private final String hostname;
 
-    public Connection(@JsonProperty("name") String name, @JsonProperty("hostname") String hostname) {
-        this.name = name;
+    public Connection( @JsonProperty("hostname") String hostname) {
         this.hostname = hostname;
     }
 }
