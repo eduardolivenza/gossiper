@@ -1,6 +1,7 @@
 package com.bloobirds.training.gossiper.model;
 
 import com.bloobirds.training.gossiper.GossiperConfigurationProperties;
+import com.bloobirds.training.gossiper.persistence.Persistence;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
@@ -14,13 +15,16 @@ public class ConnectionTable {
 
     private final Set<Connection> connections;
     private final GossiperConfigurationProperties properties;
+    private final Persistence persistenceService;
 
-    public ConnectionTable(GossiperConfigurationProperties properties) {
+    public ConnectionTable(GossiperConfigurationProperties properties, Persistence persistenceService) {
         this.properties = properties;
+        this.persistenceService = persistenceService;
         connections = Collections.synchronizedSet(new HashSet<>());
         if (properties.getSeedHostname() != null ) {
             connections.addAll(Collections.singleton(new Connection(properties.getSeedHostname())));
         }
+        addConnections(persistenceService.loadFile());
     }
 
     public void addConnections( Collection<Connection> newConnections) {

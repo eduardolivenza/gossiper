@@ -1,21 +1,18 @@
 package com.bloobirds.training.gossiper.pinger;
 
+import com.bloobirds.training.gossiper.GossiperConfigurationProperties;
 import com.bloobirds.training.gossiper.model.Connection;
 import com.bloobirds.training.gossiper.model.ConnectionTable;
-import com.bloobirds.training.gossiper.persistence.PersistenceService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.bloobirds.training.gossiper.GossiperConfigurationProperties;
 import com.bloobirds.training.gossiper.model.GossiperResponse;
+import com.bloobirds.training.gossiper.persistence.Persistence;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 public class PingerService {
 
     private ExecutorService executorService;
-    private PersistenceService persistenceService;
+    private final Persistence persistenceService;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final ConnectionTable connectionTable;
     private final OkHttpClient okHttpClient = new OkHttpClient();
@@ -45,7 +42,7 @@ public class PingerService {
         List<com.bloobirds.training.gossiper.model.Connection> connections = connectionTable.get(properties.getPingAmount());
         List<com.bloobirds.training.gossiper.model.Connection> allConnections = connectionTable.getAll();
         connections.forEach(connection -> executorService.execute(() -> this.ping(connection, allConnections)));
-        //persistenceService.persists(connections);
+        persistenceService.persists(connections);
     }
 
     private void ping(com.bloobirds.training.gossiper.model.Connection connection, List<Connection> allConnections) {
