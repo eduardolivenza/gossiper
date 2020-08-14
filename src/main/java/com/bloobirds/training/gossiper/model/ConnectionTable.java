@@ -15,16 +15,16 @@ public class ConnectionTable {
 
     private final Set<Connection> connections;
     private final GossiperConfigurationProperties properties;
-    private final Persistence persistenceService;
+    private final Persistence persistence;
 
-    public ConnectionTable(GossiperConfigurationProperties properties, Persistence persistenceService) {
+    public ConnectionTable(GossiperConfigurationProperties properties, Persistence persistence) {
         this.properties = properties;
-        this.persistenceService = persistenceService;
+        this.persistence = persistence;
         connections = Collections.synchronizedSet(new HashSet<>());
         if (properties.getSeedHostname() != null ) {
             connections.addAll(Collections.singleton(new Connection(properties.getSeedHostname())));
         }
-        addConnections(persistenceService.loadFile());
+        addConnections(this.persistence.loadFile());
     }
 
     public void addConnections( Collection<Connection> newConnections) {
