@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.ServletRequest;
 import java.util.Collections;
 
 @RequiredArgsConstructor
@@ -25,9 +24,12 @@ public class PingController {
 
     @JsonPost("/ping")
     public @ResponseBody
-    GossiperResponse answer(@RequestBody GossiperResponse newConnections, ServletRequest servletRequest) {
-        connectionTable.addConnections(Collections.singletonList(new Connection(newConnections.getName(), servletRequest.getServerName() + ":" + newConnections.getPort())));
-        return new GossiperResponse(properties.getOwnName(), properties.getPort(),  connectionTable.getAll());
+    GossiperResponse answer(@RequestBody GossiperResponse newConnections) {
+        if (!(properties.getClusterName().equals( newConnections.getClusterName()))){
+            return null;
+        }
+        connectionTable.addConnections( Collections.singletonList(new Connection( newConnections.getHostName())));
+        return new GossiperResponse(properties.getClusterName(), properties.getMyHostName(),  connectionTable.getAll());
     }
 
 }

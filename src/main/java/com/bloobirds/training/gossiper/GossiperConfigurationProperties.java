@@ -9,10 +9,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties("gossiper")
 public class GossiperConfigurationProperties {
 
-    private String seedName;
+    private String clusterName;
     private String seedHostname;
-    private String port;
     private String ownName;
+    private String myHostName;
     private long pingTime = 5; // seconds
     private int pingAmount = 2;
 

@@ -11,8 +11,8 @@ import java.util.List;
 @NoArgsConstructor
 public class GossiperResponse {
 
-    private String name;
-    private String port;
+    private String clusterName;
+    private String hostName;
     private List<Connection> connections;
 
 }
