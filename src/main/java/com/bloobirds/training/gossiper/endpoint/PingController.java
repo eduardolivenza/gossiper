@@ -3,6 +3,7 @@ package com.bloobirds.training.gossiper.endpoint;
 import com.bloobirds.training.gossiper.model.Connection;
 import com.bloobirds.training.gossiper.model.ConnectionTable;
 import com.bloobirds.training.gossiper.GossiperConfigurationProperties;
+import com.bloobirds.training.gossiper.model.DataTable;
 import com.bloobirds.training.gossiper.model.GossiperResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ public class PingController {
 
     private final GossiperConfigurationProperties properties;
     private final ConnectionTable connectionTable;
+    private final DataTable dataTable;
 
     @JsonPost("/ping")
     public @ResponseBody
@@ -29,7 +31,7 @@ public class PingController {
             return null;
         }
         connectionTable.addConnections( Collections.singletonList(new Connection( newConnections.getHostName())));
-        return new GossiperResponse(properties.getClusterName(), properties.getMyHostName(),  connectionTable.getAll());
+        return new GossiperResponse(properties.getClusterName(), properties.getMyHostName(), connectionTable.getAll(), dataTable.getAll());
     }
 
 }
