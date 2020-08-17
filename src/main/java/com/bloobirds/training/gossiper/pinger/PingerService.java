@@ -1,9 +1,8 @@
 package com.bloobirds.training.gossiper.pinger;
 
 import com.bloobirds.training.gossiper.GossiperConfigurationProperties;
+import com.bloobirds.training.gossiper.model.*;
 import com.bloobirds.training.gossiper.model.Connection;
-import com.bloobirds.training.gossiper.model.ConnectionTable;
-import com.bloobirds.training.gossiper.model.GossiperResponse;
 import com.bloobirds.training.gossiper.persistence.Persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +27,7 @@ public class PingerService {
     private final Persistence persistenceService;
     private final ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
     private final ConnectionTable connectionTable;
+    private final DataTable dataTable;
     private final OkHttpClient okHttpClient = new OkHttpClient();
     private final ObjectMapper objectMapper;
     private final GossiperConfigurationProperties properties;
@@ -41,16 +41,17 @@ public class PingerService {
     public void ping() {
         List<com.bloobirds.training.gossiper.model.Connection> connections = connectionTable.get(properties.getPingAmount());
         List<com.bloobirds.training.gossiper.model.Connection> allConnections = connectionTable.getAll();
-        connections.forEach(connection -> executorService.execute(() -> this.ping(connection, allConnections)));
+        List<com.bloobirds.training.gossiper.model.Data> allData = dataTable.getAll();
+        connections.forEach(connection -> executorService.execute(() -> this.ping(connection, allConnections, allData)));
         persistenceService.persists(connections);
     }
 
-    private void ping(com.bloobirds.training.gossiper.model.Connection connection, List<Connection> allConnections) {
+    private void ping(com.bloobirds.training.gossiper.model.Connection connection, List<Connection> allConnections, List<Data> allData) {
         Request req = null;
         try {
             req = new Request.Builder()
                 .url("http://" + connection.getHostname() + "/ping")
-                .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getClusterName(), properties.getMyHostName(), allConnections))))
+                .post(RequestBody.create(MediaType.get("application/json"), objectMapper.writeValueAsString(new GossiperResponse(properties.getClusterName(), properties.getMyHostName(), allConnections, allData))))
                 .build();
             Call call = okHttpClient.newCall(req);
             Response execute = call.execute();
@@ -59,6 +60,7 @@ public class PingerService {
                 responseBody = execute.body().string();
                 GossiperResponse response = objectMapper.readValue(responseBody, GossiperResponse.class);
                 connectionTable.addConnections( response.getConnections());
+                dataTable.createUpdateData( response.getData());
                 return;
             }
             connectionTable.remove(connection);
