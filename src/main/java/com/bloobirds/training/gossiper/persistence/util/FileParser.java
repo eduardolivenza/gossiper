@@ -21,7 +21,6 @@ public class FileParser {
                 connections.add(new Connection(line));
             }
         } catch (IOException e) {
-            e.printStackTrace();
         }
         return connections;
     }
